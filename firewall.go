@@ -1,9 +1,10 @@
 package firewall
 
 import (
+	"fmt"
 	"net"
 	"os/exec"
-    "runtime"
+	"runtime"
 )
 
 func WindowsSetup(addr, gate, iface string) error {
@@ -15,8 +16,8 @@ func WindowsSetup(addr, gate, iface string) error {
 			if val.Name != iface {
 				if val.Flags == net.FlagUp && val.Flags != net.FlagLoopback {
 					if err := exec.Command("route", "ADD", "0.0.0.0", "MASK", "0.0.0.0", gate, iface).Run(); err != nil {
-                        return err
-                    }
+						return err
+					}
 				}
 			}
 		}
@@ -25,17 +26,17 @@ func WindowsSetup(addr, gate, iface string) error {
 }
 
 func LinuxSetup(addr, gate, iface string) error {
-	if err := exec.Command("/abin/ip", "route", "del", "default").Run(); err != nil {
+	if err := exec.Command("/sbin/ip", "route", "del", "default").Run(); err != nil {
 		return err
 	}
-	if err := exec.Command("/abin/ip", "route", "add", "default", "via", gate, "dev", iface).Run(); err != nil {
+	if err := exec.Command("/sbin/ip", "route", "add", "default", "via", gate, "dev", iface).Run(); err != nil {
 		return err
 	}
 	if interfaces, err := net.Interfaces(); err != nil {
 		for _, val := range interfaces {
 			if val.Name != iface {
 				if val.Flags == net.FlagUp && val.Flags != net.FlagLoopback {
-					if err := exec.Command("/abin/ip", "route", "add", addr, "via", gate, "dev", val.Name).Run(); err != nil {
+					if err := exec.Command("/sbin/ip", "route", "add", addr, "via", gate, "dev", val.Name).Run(); err != nil {
 						return err
 					}
 				}
@@ -67,15 +68,15 @@ func DarwinSetup(addr, gate, iface string) error {
 }
 
 func Setup(addr, gate, iface string) error {
-    switch os := runtime.GOOS; os {
+	switch os := runtime.GOOS; os {
 	case "darwin":
 		return DarwinSetup(addr, gate, iface)
 	case "linux":
 		return LinuxSetup(addr, gate, iface)
 	case "windows":
-        return WindowsSetup(addr, gate, iface)
-    default:
-        return DarwinSetup(addr, gate, iface)
+		return WindowsSetup(addr, gate, iface)
+	default:
+		return fmt.Errorf("Error setting up VPN interface to be default gateway")
 	}
-    return nil
+	return nil
 }
