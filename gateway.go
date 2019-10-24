@@ -24,16 +24,16 @@ func LinuxServerSetup(iface, gface string) error {
 }
 
 func WindowsServerSetup(iface, gface string) error {
-	//if err := exec.Command("", "").Run(); err != nil {
-	//return err
-	//}
+	/*if err := exec.Command("netsh", "interface", "ipv4", "set", "interface", "name="+gface, "forwarding=enabled").Run(); err != nil {
+        return err
+	}*/
 	return fmt.Errorf("%s is not supported yet as a server, please check back soon", "Windows")
 }
 
 func DarwinServerSetup(iface, gface string) error {
-	//if err := exec.Command("", "").Run(); err != nil {
-	//return err
-	//}
+	/*if err := exec.Command("sysctl", "-w", "net.inet.ip.forwarding=1").Run(); err != nil {
+        return err
+	}*/
 	return fmt.Errorf("%s is not supported yet as a server, please check back soon", "OSX")
 }
 
