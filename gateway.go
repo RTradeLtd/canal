@@ -25,14 +25,14 @@ func LinuxServerSetup(iface, gface string) error {
 
 func WindowsServerSetup(iface, gface string) error {
 	//if err := exec.Command("", "").Run(); err != nil {
-        //return err
+	//return err
 	//}
 	return fmt.Errorf("%s is not supported yet as a server, please check back soon", "Windows")
 }
 
 func DarwinServerSetup(iface, gface string) error {
 	//if err := exec.Command("", "").Run(); err != nil {
-        //return err
+	//return err
 	//}
 	return fmt.Errorf("%s is not supported yet as a server, please check back soon", "OSX")
 }
