@@ -3,78 +3,58 @@ package firewall
 import (
 	"fmt"
 	"net"
-	"os/exec"
 	"runtime"
+	"strings"
+
+	"github.com/jackpal/gateway"
 )
 
-func WindowsSetup(addr, gate, iface string) error {
-	if err := exec.Command("route", "-f").Run(); err != nil {
-		return err
-	}
-	if interfaces, err := net.Interfaces(); err != nil {
-		for _, val := range interfaces {
-			if val.Name != iface {
-				if val.Flags == net.FlagUp && val.Flags != net.FlagLoopback {
-					if err := exec.Command("route", "ADD", "0.0.0.0", "MASK", "0.0.0.0", gate, iface).Run(); err != nil {
-						return err
-					}
-				}
-			}
-		}
-	}
+func windowsSetup(addr, gate net.IP, user, iface string, exempt bool, vface string) error {
 	return nil
 }
 
-func LinuxSetup(addr, gate, iface string) error {
-	if err := exec.Command("/sbin/ip", "route", "del", "default").Run(); err != nil {
-		return err
-	}
-	if err := exec.Command("/sbin/ip", "route", "add", "default", "via", gate, "dev", iface).Run(); err != nil {
-		return err
-	}
-	if interfaces, err := net.Interfaces(); err != nil {
-		for _, val := range interfaces {
-			if val.Name != iface {
-				if val.Flags == net.FlagUp && val.Flags != net.FlagLoopback {
-					if err := exec.Command("/sbin/ip", "route", "add", addr, "via", gate, "dev", val.Name).Run(); err != nil {
-						return err
-					}
-				}
-			}
-		}
-	}
+func darwinSetup(addr, gate net.IP, user, iface string, exempt bool, vface string) error {
 	return nil
 }
 
-func DarwinSetup(addr, gate, iface string) error {
-	if err := exec.Command("route", "-n", "flush").Run(); err != nil {
-		return err
-	}
-	if err := exec.Command("route", "add", "-ifscope", iface, addr, gate).Run(); err != nil {
-		return err
-	}
-	if interfaces, err := net.Interfaces(); err != nil {
-		for _, val := range interfaces {
-			if val.Name != iface {
-				if val.Flags == net.FlagUp && val.Flags != net.FlagLoopback {
-					if err := exec.Command("route", "add", "-ifscope", val.Name, addr, gate, "0.0.0.0").Run(); err != nil {
-						return err
-					}
-				}
+func IfIP(INTERFACE string) (net.IP, error) {
+	if i, err := net.InterfaceByName(INTERFACE); err == nil {
+		addrs, err := i.Addrs()
+		if err != nil {
+			return nil, err
+		}
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if !strings.HasPrefix(ip.String(), "127.0.") {
+				return ip, nil
 			}
 		}
 	}
-	return nil
+	return nil, fmt.Errorf("IP Address for interface not found")
 }
 
-func Setup(addr, gate, iface string) error {
+func Setup(user, iface string, exempt bool, vface string) error {
+	gate, err := gateway.DiscoverGateway()
+	if err != nil {
+		return err
+	}
+	addr, err := IfIP(iface)
+	if err != nil {
+		return err
+	}
 	switch os := runtime.GOOS; os {
 	case "darwin":
-		return DarwinSetup(addr, gate, iface)
+		return darwinSetup(addr, gate, user, iface, exempt, vface)
 	case "linux":
-		return LinuxSetup(addr, gate, iface)
+		return linuxSetup(addr, gate, user, iface, "br0", exempt, vface)
 	case "windows":
-		return WindowsSetup(addr, gate, iface)
+		return windowsSetup(addr, gate, user, iface, exempt, vface)
 	default:
 		return fmt.Errorf("Error setting up VPN interface to be default gateway")
 	}
