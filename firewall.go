@@ -3,17 +3,14 @@ package firewall
 import (
 	"fmt"
 	"net"
+	"os/exec"
 	"runtime"
 	"strings"
 
 	"github.com/jackpal/gateway"
 )
 
-func windowsSetup(addr, gate net.IP, user, iface string, exempt bool, vface string) error {
-	return nil
-}
-
-func darwinSetup(addr, gate net.IP, user, iface string, exempt bool, vface string) error {
+func darwinSetup(addr, gate net.IP, user, iface, bridge string, exempt bool, vface string) error {
 	return nil
 }
 
@@ -39,6 +36,15 @@ func IfIP(INTERFACE string) (net.IP, error) {
 	return nil, fmt.Errorf("IP Address for interface not found")
 }
 
+func Command(command string, args ...string) (string, error) {
+	cmd := exec.Command(command, args...)
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return string(output), nil
+}
+
 func Setup(user, iface string, exempt bool, vface string) error {
 	gate, err := gateway.DiscoverGateway()
 	if err != nil {
@@ -50,11 +56,11 @@ func Setup(user, iface string, exempt bool, vface string) error {
 	}
 	switch os := runtime.GOOS; os {
 	case "darwin":
-		return darwinSetup(addr, gate, user, iface, exempt, vface)
+		return darwinSetup(addr, gate, user, iface, "bridge", exempt, vface)
 	case "linux":
 		return linuxSetup(addr, gate, user, iface, "br0", exempt, vface)
 	case "windows":
-		return windowsSetup(addr, gate, user, iface, exempt, vface)
+		return windowsSetup(addr, gate, user, iface, "bridge", exempt, vface)
 	default:
 		return fmt.Errorf("Error setting up VPN interface to be default gateway")
 	}
