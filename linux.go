@@ -79,6 +79,13 @@ func LinuxSetupIPTablesTagUser(LANIP, USER, VPNINTERFACE string) error {
 	if _, err := Command("/sbin/iptables", "-t", "nat", "-A", "OUTPUT", "--dest", LANIP, "-p", "tcp", "--dport", "53", "-m", "owner", "--uid-owner", USER, "-j", "DNAT", "--to-destination", "1.1.1.1"); err != nil {
 		return err
 	}
+	// Allow user access to lo and VPNINTERFACE
+	if _, err := Command("/sbin/iptables", "-A", "OUTPUT", "-o", "lo", "-m", "owner", "--uid-owner", USER, "-j", "ACCEPT"); err != nil {
+		return err
+	}
+	if _, err := Command("/sbin/iptables", "-A", "OUTPUT", "-o", VPNINTERFACE, "-m", "owner", "--uid-owner", USER, "-j", "ACCEPT"); err != nil {
+		return err
+	}
 	return nil
 }
 

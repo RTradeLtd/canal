@@ -51,11 +51,11 @@ func WindowsSetupNetSHSecureSetup(LANIP, USER, VPNINTERFACE string) error {
 
 func WindowsCheckIPRules() bool {
 	//if out, err := Command("/sbin/ip", "rule", "list"); err != nil {
-		//return false
+	//return false
 	//} else {
-		//return strings.Contains(out, "0x1")
+	//return strings.Contains(out, "0x1")
 	//}
-    return false
+	return false
 }
 
 func WindowsSetupRoutingTables(gate net.IP, USER, INTERFACE string, exempt bool, VPNINTERFACE string) error {
@@ -64,7 +64,7 @@ func WindowsSetupRoutingTables(gate net.IP, USER, INTERFACE string, exempt bool,
 		if vpngate, err := IfIP(VPNINTERFACE); err != nil {
 			return err
 		} else {
-        	if _, err := Command("route", "replace", "default", "via", GATEWAY); err != nil {
+			if _, err := Command("route", "replace", "default", "via", GATEWAY); err != nil {
 				return err
 			}
 			GATEWAY = vpngate.String()

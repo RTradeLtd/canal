@@ -75,7 +75,7 @@ func DefaultIface() (string, error) {
 
 func Setup(user, iface string, exempt bool, vface string) error {
 	if iface == "" {
-        var err error
+		var err error
 		iface, err = DefaultIface()
 		if err != nil {
 			return err
