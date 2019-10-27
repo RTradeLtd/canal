@@ -16,6 +16,7 @@ func darwinSetup(addr, gate net.IP, user, iface, bridge string, exempt bool, vfa
 }
 
 func IfIP(INTERFACE string) (net.IP, error) {
+	log.Println("firewall: looking up IP of", INTERFACE)
 	if i, err := net.InterfaceByName(INTERFACE); err == nil {
 		addrs, err := i.Addrs()
 		if err != nil {
@@ -33,8 +34,10 @@ func IfIP(INTERFACE string) (net.IP, error) {
 				return ip, nil
 			}
 		}
+	} else {
+		return nil, err
 	}
-	return nil, fmt.Errorf("IP Address for interface not found")
+	return nil, fmt.Errorf("Undefined error discovering IP of", INTERFACE)
 }
 
 func Command(command string, args ...string) (string, error) {
@@ -56,6 +59,7 @@ func DefaultIface() (string, error) {
 	for _, i := range ifaces {
 		addrs, err := i.Addrs()
 		if err != nil {
+			log.Println("Does this err matter?")
 			return "", err
 		}
 		for _, addr := range addrs {
@@ -66,13 +70,22 @@ func DefaultIface() (string, error) {
 			case *net.IPAddr:
 				ip = v.IP
 			}
-			if ip.String() == gate.String() {
-				return i.Name, nil
+			h := strings.Split(ip.String(), ".")
+			g := strings.Split(gate.String(), ".")
+
+			if len(h) == 4 && len(g) == 4 {
+				i2 := h[0] + h[1] + h[2]
+				g2 := g[0] + g[1] + g[2]
+				if i2 == g2 {
+					log.Println("firewall:", i2, "==", g2)
+					return i.Name, nil
+				}
+				log.Println("firewall:", i2, "!=", g2)
 			}
 			// process IP address
 		}
 	}
-	return "", nil
+	return "", fmt.Errorf("default interface not found")
 }
 
 func Setup(user, iface string, exempt bool, vface string) error {

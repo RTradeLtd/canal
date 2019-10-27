@@ -7,9 +7,9 @@ import (
 )
 
 func LinuxSetupRoutingTable(USER string) error {
-	if bytes, err := ioutil.ReadFile("/etc/iproute2/rt_table"); err == nil {
+	if bytes, err := ioutil.ReadFile("/etc/iproute2/rt_tables"); err == nil {
 		if !strings.Contains(string(bytes), USER) {
-			if err := ioutil.WriteFile("/etc/iproute2/rt_table", []byte("\n200 "+USER), 0644); err != nil {
+			if err := ioutil.WriteFile("/etc/iproute2/rt_tables", []byte("\n200 "+USER), 0644); err != nil {
 				return err
 			}
 		}
