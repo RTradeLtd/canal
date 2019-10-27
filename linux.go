@@ -82,6 +82,9 @@ func LinuxSetupIPTables(LANIP, USER string) error {
 	if _, err := Command("/sbin/iptables", "-t", "mangle", "-A", "OUTPUT", "!", "--src", LANIP, "-j", "MARK", "--set-mark", "0x1"); err != nil {
 		return err
 	}
+	if _, err := Command("/sbin/iptables", "-t", "mangle", "-A", "OUTPUT", "-j", "MARK", "--save-mark"); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -139,6 +142,9 @@ func LinuxCheckIPRules() bool {
 
 func LinuxSetupRoutingTables(gate net.IP, USER, INTERFACE string, exempt bool, VPNINTERFACE string) error {
 	GATEWAY := gate.String()
+	if _, err := Command("iptables", "-t", "mangle", "-A", "PREROUTING", "-j", "CONNMARK", "--restore-mark"); err != nil {
+		return err
+	}
 	if !exempt {
 		if vpngate, err := IfIP(VPNINTERFACE); err != nil {
 			return err
