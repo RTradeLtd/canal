@@ -60,6 +60,7 @@ func Command(command string, args ...string) (string, error) {
 	cmd := exec.Command(command, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		log.Println("firewall: Error", command, "\n\t", args, "\n\t", output, "\n\t", err)
 		return "", fmt.Errorf("firewall: Error %s %s", output, err)
 	}
 	return string(output), nil
