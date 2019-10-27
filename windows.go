@@ -55,7 +55,7 @@ func WindowsCheckIPRules() bool {
 	//} else {
 		//return strings.Contains(out, "0x1")
 	//}
-    return true
+    return false
 }
 
 func WindowsSetupRoutingTables(gate net.IP, USER, INTERFACE string, exempt bool, VPNINTERFACE string) error {
@@ -95,12 +95,11 @@ func windowsSetup(addr, gate net.IP, APP, INTERFACE, BRIF string, exempt bool, V
 	} else {
 		WindowsSetupNetSHSecureSetup(LANIP, APP, VPNINTERFACE)
 	}
-
 	if err := WindowsSetupRoutingTables(gate, APP, INTERFACE, exempt, VPNINTERFACE); err != nil {
 		return err
 	}
-	if _, err := Command("/sbin/iptables", "-A", "OUTPUT", "!", "--src", LANIP, "-o", BRIF, "-j", "REJECT"); err != nil {
+	/*if _, err := Command("/sbin/iptables", "-A", "OUTPUT", "!", "--src", LANIP, "-o", BRIF, "-j", "REJECT"); err != nil {
 		return err
-	}
+	}*/
 	return nil
 }
