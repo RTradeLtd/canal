@@ -38,7 +38,7 @@ func LinuxSetupRoutingTable(USER string) error {
 	if bytes, err := ioutil.ReadFile("/etc/iproute2/rt_tables"); err == nil {
 		if !strings.Contains(string(bytes), USER) {
 
-			if err := AppendFile("/etc/iproute2/rt_tables", "\n"+LinuxFindNum()+"\t"+USER+LinuxFindNext(), 0644); err != nil {
+			if err := AppendFile("/etc/iproute2/rt_tables", "\n"+LinuxFindNum()+"\t"+USER+"\n"+LinuxFindNext(), 0644); err != nil {
 				return err
 			}
 		}
