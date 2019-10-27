@@ -2,6 +2,7 @@ package firewall
 
 import (
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net"
 	"strconv"
@@ -26,19 +27,24 @@ func LinuxFindNext() string {
 		lines := strings.Split(string(bytes), "\n")
 		for _, content := range lines {
 			if !strings.HasPrefix(content, "#") {
-				out := strings.SplitN(strings.Replace(content, "\t", "", 2), " ", 3)
-				retv, _ = strconv.Atoi(out[2])
+				out := strings.Split(content, "    ")
+				log.Println("firewall: finding routing table", out, len(out))
+				if len(out) > 2 {
+					log.Println("firewall: table", out[2])
+
+					retv, _ = strconv.Atoi(strings.Trim(out[2], " "))
+				}
 			}
 		}
 	}
-	return strconv.Itoa(retv)
+	return strconv.Itoa(retv + 1)
 }
 
 func LinuxSetupRoutingTable(USER string) error {
 	if bytes, err := ioutil.ReadFile("/etc/iproute2/rt_tables"); err == nil {
 		if !strings.Contains(string(bytes), USER) {
 
-			if err := AppendFile("/etc/iproute2/rt_tables", "\n"+LinuxFindNum()+"\t"+USER+"\n"+LinuxFindNext(), 0644); err != nil {
+			if err := AppendFile("/etc/iproute2/rt_tables", "\n"+LinuxFindNum()+"\t"+USER+"\t"+LinuxFindNext(), 0644); err != nil {
 				return err
 			}
 		}
