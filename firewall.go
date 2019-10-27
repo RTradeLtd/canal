@@ -38,7 +38,7 @@ func IfIP(INTERFACE string) (net.IP, error) {
 }
 
 func Command(command string, args ...string) (string, error) {
-	log.Println(command, args)
+	log.Println("firewall:", command, args)
 	cmd := exec.Command(command, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -83,6 +83,7 @@ func Setup(user, iface string, exempt bool, vface string) error {
 			return err
 		}
 	}
+	log.Println("firewall:", "Setting up firewall")
 	gate, err := gateway.DiscoverGateway()
 	if err != nil {
 		return err
@@ -91,6 +92,7 @@ func Setup(user, iface string, exempt bool, vface string) error {
 	if err != nil {
 		return err
 	}
+	log.Println("firewall:", iface, gate.String(), addr.String())
 	switch os := runtime.GOOS; os {
 	case "darwin":
 		return darwinSetup(addr, gate, user, iface, "bridge", exempt, vface)
