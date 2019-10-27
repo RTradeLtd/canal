@@ -65,7 +65,7 @@ func DefaultIface() (string, error) {
 				ip = v.IP
 			}
 			if ip.String() == gate.String() {
-				return ip.String(), nil
+				return i.Name, nil
 			}
 			// process IP address
 		}
