@@ -9,7 +9,7 @@ import (
 func LinuxSetupRoutingTable(USER string) error {
 	if bytes, err := ioutil.ReadFile("/etc/iproute2/rt_tables"); err == nil {
 		if !strings.Contains(string(bytes), USER) {
-			if err := ioutil.WriteFile("/etc/iproute2/rt_tables", []byte("\n200 "+USER), 0644); err != nil {
+			if err := AppendFile("/etc/iproute2/rt_tables", "\n200 "+USER, 0644); err != nil {
 				return err
 			}
 		}
@@ -20,7 +20,7 @@ func LinuxSetupRoutingTable(USER string) error {
 }
 
 // Sets up specific marking for VPN-Exempt or VPN-enabled users.
-func LinuxSetupIPTables(LANIP, USER string) error {
+func LinuxFlushIPTables() error {
 	if _, err := Command("/sbin/iptables", "-F", "-t", "nat"); err != nil {
 		return err
 	}
@@ -30,6 +30,11 @@ func LinuxSetupIPTables(LANIP, USER string) error {
 	if _, err := Command("/sbin/iptables", "-F", "-t", "filter"); err != nil {
 		return err
 	}
+	return nil
+}
+
+// Sets up specific marking for VPN-Exempt or VPN-enabled users.
+func LinuxSetupIPTables(LANIP, USER string) error {
 	if _, err := Command("/sbin/iptables", "-t", "mangle", "-A", "OUTPUT", "!", "--dest", LANIP, "-m", "owner", "--uid-owner", USER, "-j", "MARK", "--set-mark", "0x1"); err != nil {
 		return err
 	}
@@ -127,6 +132,9 @@ func LinuxSetupRoutingTables(gate net.IP, USER, INTERFACE string, exempt bool, V
 func linuxSetup(addr, gate net.IP, USER, INTERFACE, BRIF string, exempt bool, VPNINTERFACE string) error {
 	LANIP := addr.String()
 	if err := LinuxSetupRoutingTable(USER); err != nil {
+		return err
+	}
+	if err := LinuxFlushIPTables(); err != nil {
 		return err
 	}
 	if err := LinuxSetupIPTables(LANIP, USER); err != nil {

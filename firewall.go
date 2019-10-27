@@ -4,12 +4,27 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
 
 	"github.com/jackpal/gateway"
 )
+
+func AppendFile(filename, text string, perms os.FileMode) error {
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, perms)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	if _, err = f.WriteString(text); err != nil {
+		return err
+	}
+	return nil
+}
 
 func darwinSetup(addr, gate net.IP, user, iface, bridge string, exempt bool, vface string) error {
 	return nil
