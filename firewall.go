@@ -2,6 +2,7 @@ package firewall
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os/exec"
 	"runtime"
