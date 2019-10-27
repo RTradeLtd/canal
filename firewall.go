@@ -133,3 +133,17 @@ func Setup(user, iface string, exempt bool, vface string) error {
 	}
 	return nil
 }
+
+func FlushTables() error {
+	switch os := runtime.GOOS; os {
+	case "darwin":
+		//DarwinFlushPFTables
+	case "linux":
+		return LinuxFlushIPTables()
+	case "windows":
+		//WindowsFlushTables
+	default:
+		return fmt.Errorf("firewall: Error flushing routing tables and firewall, unsupported platform.")
+	}
+	return nil
+}
