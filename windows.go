@@ -50,11 +50,12 @@ func WindowsSetupNetSHSecureSetup(LANIP, USER, VPNINTERFACE string) error {
 }
 
 func WindowsCheckIPRules() bool {
-	if out, err := Command("/sbin/ip", "rule", "list"); err != nil {
-		return false
-	} else {
-		return strings.Contains(out, "0x1")
-	}
+	//if out, err := Command("/sbin/ip", "rule", "list"); err != nil {
+		//return false
+	//} else {
+		//return strings.Contains(out, "0x1")
+	//}
+    return true
 }
 
 func WindowsSetupRoutingTables(gate net.IP, USER, INTERFACE string, exempt bool, VPNINTERFACE string) error {

@@ -45,7 +45,42 @@ func Command(command string, args ...string) (string, error) {
 	return string(output), nil
 }
 
+func DefaultIface() (string, error) {
+	gate, err := gateway.DiscoverGateway()
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return "", err
+	}
+	for _, i := range ifaces {
+		addrs, err := i.Addrs()
+		if err != nil {
+			return "", err
+		}
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if ip.String() == gate.String() {
+				return ip.String(), nil
+			}
+			// process IP address
+		}
+	}
+	return "", nil
+}
+
 func Setup(user, iface string, exempt bool, vface string) error {
+	if iface == "" {
+        var err error
+		iface, err = DefaultIface()
+		if err != nil {
+			return err
+		}
+	}
 	gate, err := gateway.DiscoverGateway()
 	if err != nil {
 		return err
