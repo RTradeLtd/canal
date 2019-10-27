@@ -44,7 +44,7 @@ func LinuxSetupRoutingTable(USER string) error {
 	if bytes, err := ioutil.ReadFile("/etc/iproute2/rt_tables"); err == nil {
 		if !strings.Contains(string(bytes), USER) {
 
-			if err := AppendFile("/etc/iproute2/rt_tables", "\n"+LinuxFindNum()+"\t"+USER+"\t"+LinuxFindNext(), 0644); err != nil {
+			if err := AppendFile("/etc/iproute2/rt_tables", "\n"+LinuxFindNum()+"    "+USER+"    "+LinuxFindNext(), 0644); err != nil {
 				return err
 			}
 		}
@@ -169,9 +169,9 @@ func linuxSetup(addr, gate net.IP, USER, INTERFACE, BRIF string, exempt bool, VP
 	if err := LinuxSetupRoutingTable(USER); err != nil {
 		return err
 	}
-	if err := LinuxFlushIPTables(); err != nil {
+	/*if err := LinuxFlushIPTables(); err != nil {
 		return err
-	}
+	}*/
 	if err := LinuxSetupIPTables(LANIP, USER); err != nil {
 		return err
 	}
