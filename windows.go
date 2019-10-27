@@ -64,6 +64,9 @@ func WindowsSetupRoutingTables(gate net.IP, USER, INTERFACE string, exempt bool,
 		if vpngate, err := IfIP(VPNINTERFACE); err != nil {
 			return err
 		} else {
+        	if _, err := Command("route", "replace", "default", "via", GATEWAY); err != nil {
+				return err
+			}
 			GATEWAY = vpngate.String()
 		}
 	}
