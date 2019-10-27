@@ -138,10 +138,12 @@ func FlushTables() error {
 	switch os := runtime.GOOS; os {
 	case "darwin":
 		//DarwinFlushPFTables
+		return fmt.Errorf("firewall: Error flushing routing tables and firewall, unsupported platform.")
 	case "linux":
 		return LinuxFlushIPTables()
 	case "windows":
 		//WindowsFlushTables
+		return fmt.Errorf("firewall: Error flushing routing tables and firewall, unsupported platform.")
 	default:
 		return fmt.Errorf("firewall: Error flushing routing tables and firewall, unsupported platform.")
 	}
