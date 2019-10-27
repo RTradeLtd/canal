@@ -2,14 +2,43 @@ package firewall
 
 import (
 	"io/ioutil"
+	"math/rand"
 	"net"
+	"strconv"
 	"strings"
 )
+
+func LinuxFindNum() string {
+	if bytes, err := ioutil.ReadFile("/etc/iproute2/rt_tables"); err == nil {
+		for {
+			value := strconv.Itoa(rand.Intn(255))
+			if !strings.Contains(string(bytes), value) {
+				return value
+			}
+		}
+	}
+	return "199"
+}
+
+func LinuxFindNext() string {
+	var retv int
+	if bytes, err := ioutil.ReadFile("/etc/iproute2/rt_tables"); err == nil {
+		lines := strings.Split(string(bytes), "\n")
+		for _, content := range lines {
+			if !strings.HasPrefix(content, "#") {
+				out := strings.SplitN(strings.Replace(content, "\t", "", 2), " ", 3)
+				retv, _ = strconv.Atoi(out[2])
+			}
+		}
+	}
+	return strconv.Itoa(retv)
+}
 
 func LinuxSetupRoutingTable(USER string) error {
 	if bytes, err := ioutil.ReadFile("/etc/iproute2/rt_tables"); err == nil {
 		if !strings.Contains(string(bytes), USER) {
-			if err := AppendFile("/etc/iproute2/rt_tables", "\n200 "+USER, 0644); err != nil {
+
+			if err := AppendFile("/etc/iproute2/rt_tables", "\n"+LinuxFindNum()+"\t"+USER+LinuxFindNext(), 0644); err != nil {
 				return err
 			}
 		}
