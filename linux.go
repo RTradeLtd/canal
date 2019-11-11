@@ -146,7 +146,7 @@ func LinuxCheckIPRules() bool {
 
 func LinuxSetupRoutingTables(gate net.IP, USER, INTERFACE string, exempt bool, VPNINTERFACE string) error {
 	GATEWAY := gate.String()
-	if _, err := Command("iptables", "-t", "mangle", "-A", "PREROUTING", "-j", "MARK", "--restore-mark"); err != nil {
+	if _, err := Command("iptables", "-t", "mangle", "-A", "PREROUTING", "-j", "CONNMARK", "--restore-mark"); err != nil {
 		return err
 	}
 	if !exempt {
