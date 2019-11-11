@@ -10,7 +10,7 @@ import (
 )
 
 func LinuxFindTag() string {
-
+    return "0x1"
 }
 
 func LinuxFindNum() string {
