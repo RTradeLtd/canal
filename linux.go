@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+func LinuxFindTag() string {
+
+}
+
 func LinuxFindNum() string {
 	if bytes, err := ioutil.ReadFile("/etc/iproute2/rt_tables"); err == nil {
 		for {
@@ -82,7 +86,7 @@ func LinuxSetupIPTables(LANIP, USER string) error {
 	if _, err := Command("/sbin/iptables", "-t", "mangle", "-A", "OUTPUT", "!", "--src", LANIP, "-j", "MARK", "--set-mark", "0x1"); err != nil {
 		return err
 	}
-	if _, err := Command("/sbin/iptables", "-t", "mangle", "-A", "OUTPUT", "-j", "MARK", "--save-mark"); err != nil {
+	if _, err := Command("/sbin/iptables", "-t", "mangle", "-A", "OUTPUT", "-j", "CONNMARK", "--save-mark"); err != nil {
 		return err
 	}
 	return nil
