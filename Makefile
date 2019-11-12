@@ -11,4 +11,4 @@ build: fmt
 	go build -o canal/canal ./canal
 
 fmt:
-	gofmt -w *.go canal/main.go
+	gofmt -w *.go simplify/*.go canal/main.go
