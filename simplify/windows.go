@@ -15,13 +15,10 @@ func WindowsSetupRoutingMetrics(ip, gate net.IP) error {
 	IP := ip.String()
 	//ip route del 40.2.2.0/24 via 30.1.2.2
 	//ip route add 40.2.2.0/24 via 30.1.2.2 metric 1234
-	if _, err := Command("route", "flush", "cache"); err != nil {
+	if _, err := Command("route.exe", "flush", "cache"); err != nil {
 		return err
 	}
-	if _, err := Command("route", "del", IP, "via", GATEWAY); err != nil {
-		return err
-	}
-	if _, err := Command("route", "add", IP, "via", GATEWAY, "metric", "5"); err != nil {
+	if _, err := Command("route.exe", "change", "0.0.0.0", "mask", "0.0.0.0", IP, "metric", "5"); err != nil {
 		return err
 	}
 	return nil
