@@ -8,6 +8,7 @@ import (
 	"net"
 	"os/exec"
 	//	"strconv"
+    "runtime"
 	"strings"
 
 	"github.com/jackpal/gateway"
@@ -86,3 +87,19 @@ func DefaultIface() (string, error) {
 	}
 	return "", fmt.Errorf("default interface not found")
 }
+
+func Setup(vpnaddr, vpngate net.IP) error {
+	switch os := runtime.GOOS; os {
+	case "darwin":
+		//return darwinSetup(addr, gate, user, iface, "bridge", exempt, vface)
+        return fmt.Errorf("%s", "Mac support isn't ready yet")
+	case "linux":
+		return SetupLinux(vpnaddr, vpngate)
+	case "windows":
+		return SetupWindows(vpnaddr, vpngate)
+	default:
+		return fmt.Errorf("Error setting up VPN interface to be default gateway")
+	}
+	return nil
+}
+

@@ -11,10 +11,8 @@ import (
 )
 
 func WindowsSetupRoutingMetrics(ip, gate net.IP) error {
-	GATEWAY := gate.String()
+	//GATEWAY := gate.String()
 	IP := ip.String()
-	//ip route del 40.2.2.0/24 via 30.1.2.2
-	//ip route add 40.2.2.0/24 via 30.1.2.2 metric 1234
 	if _, err := Command("route.exe", "flush", "cache"); err != nil {
 		return err
 	}
@@ -27,7 +25,7 @@ func WindowsSetupRoutingMetrics(ip, gate net.IP) error {
 func WindowsSetupRoutingTable(vpnaddr, vpngate net.IP) error {
 	VPNIP := vpnaddr.String()
 	VPNGATE := vpngate.String()
-	if _, err := Command("route", "add", VPNIP, VPNGATE, "metric", "1", "1.1.1.1", "route", "add", "default", "gw", "10.0.0.2", "metric 2"); err != nil {
+	if _, err := Command("route.exe", "add", VPNIP, VPNGATE, "metric", "1", "1.1.1.1", "route", "add", "default", "gw", "10.0.0.2", "metric 2"); err != nil {
 		return err
 	}
 	return nil
