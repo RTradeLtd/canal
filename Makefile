@@ -1,7 +1,7 @@
 
 GO111MODULE=on
 
-VERSION=0.0.24
+VERSION=0.0.25
 USER_GH=eyedeekay
 
 version:
@@ -12,3 +12,19 @@ build: fmt
 
 fmt:
 	gofmt -w *.go simplify/*.go canal/main.go
+
+setup:
+	sudo ufw --dry-run reset
+	sudo ufw --dry-run default deny incoming
+	sudo ufw --dry-run default deny outgoing
+	sudo ufw --dry-run allow out on tun0 from any to any
+	sudo ufw enable
+
+setup-i2p:
+	sudo ufw --dry-run allow out from any to any
+
+unsetup:
+	sudo ufw reset
+	sudo ufw default deny incoming
+	sudo ufw default allow outgoing
+	sudo ufw enable

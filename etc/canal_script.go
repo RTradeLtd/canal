@@ -1,17 +1,16 @@
-package firewall
+package fwscript
 
 import (
 	"fmt"
+	"github.com/jackpal/gateway"
 	"log"
 	"runtime"
-	"github.com/jackpal/gateway"
-    "github.com/eyedeekay/canal/etc"
 )
 
-func Setup(user, iface string, exempt bool, vface string) error {
+func Setup(iface string) error {
 	if iface == "" {
 		var err error
-		iface, err = fwscript.DefaultIface()
+		iface, err = DefaultIface()
 		if err != nil {
 			return err
 		}
@@ -21,7 +20,7 @@ func Setup(user, iface string, exempt bool, vface string) error {
 	if err != nil {
 		return err
 	}
-	addr, err := fwscript.IfIP(iface)
+	addr, err := IfIP(iface)
 	if err != nil {
 		return err
 	}
@@ -29,7 +28,9 @@ func Setup(user, iface string, exempt bool, vface string) error {
 	switch os := runtime.GOOS; os {
 	case "darwin":
 	case "linux":
+		LinuxSetupVPNDNS(iface, addr.String())
 	case "windows":
+		//WindowsSetupVPNDNS(iface, addr.String())
 	default:
 		return fmt.Errorf("Error setting up VPN interface to be default gateway")
 	}

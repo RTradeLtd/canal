@@ -1,18 +1,57 @@
-package firewall
+package fwscript
 
 import (
-	//	"io/ioutil"
-	"log"
-	//	"math/rand"
 	"fmt"
+	"github.com/mitchellh/go-ps"
+	"log"
 	"net"
+	"os"
 	"os/exec"
-	//	"strconv"
-    "runtime"
+	"strconv"
 	"strings"
 
 	"github.com/jackpal/gateway"
 )
+
+func splitRules(rule string) []string {
+	return strings.Split(rule, " ")
+}
+
+func GetPidString(Executable string) (string, error) {
+	id, err := GetPidOf(Executable)
+	return strconv.Itoa(id), err
+}
+
+func GetPidOf(Executable string) (int, error) {
+	processes, err := ps.Processes()
+	if err != nil {
+		return 0, err
+	}
+	for _, proc := range processes {
+		if strings.Contains(proc.Executable(), Executable) {
+			return proc.Pid(), nil
+		}
+	}
+	return 0, fmt.Errorf("(setup) error %s is not running", Executable)
+}
+
+func AppendFile(filename, text string, perms os.FileMode) error {
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, perms)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	if _, err = f.WriteString(text); err != nil {
+		return err
+	}
+	return nil
+}
+
+func darwinSetup(addr, gate net.IP, user, iface, bridge string, exempt bool, vface string) error {
+	return nil
+}
 
 func IfIP(INTERFACE string) (net.IP, error) {
 	log.Println("firewall: looking up IP of", INTERFACE)
@@ -36,7 +75,7 @@ func IfIP(INTERFACE string) (net.IP, error) {
 	} else {
 		return nil, err
 	}
-	return nil, fmt.Errorf("Undefined error discovering IP of", INTERFACE)
+	return nil, fmt.Errorf("Undefined error discovering IP of %s", INTERFACE)
 }
 
 func Command(command string, args ...string) (string, error) {
@@ -87,19 +126,3 @@ func DefaultIface() (string, error) {
 	}
 	return "", fmt.Errorf("default interface not found")
 }
-
-func Setup(vpnaddr, vpngate net.IP) error {
-	switch os := runtime.GOOS; os {
-	case "darwin":
-		//return darwinSetup(addr, gate, user, iface, "bridge", exempt, vface)
-        return fmt.Errorf("%s", "Mac support isn't ready yet")
-	case "linux":
-		return SetupLinux(vpnaddr, vpngate)
-	case "windows":
-		return SetupWindows(vpnaddr, vpngate)
-	default:
-		return fmt.Errorf("Error setting up VPN interface to be default gateway")
-	}
-	return nil
-}
-
