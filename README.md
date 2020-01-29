@@ -1,7 +1,7 @@
 canal - VPN Auto-Configuration Tool
 ===================================
 
-This plugin encapsulates commands for configuring a VPN as the default route
+This utility encapsulates commands for configuring a VPN as the default route
 on straightforward client applications, or forwarding to another connection on
 a server.
 

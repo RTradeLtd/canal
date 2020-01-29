@@ -33,7 +33,7 @@ readme:
 	@echo "canal - VPN Auto-Configuration Tool" | tee README.md
 	@echo "===================================" | tee -a README.md
 	@echo "" | tee -a README.md
-	@echo "This plugin encapsulates commands for configuring a VPN as the default route" | tee -a README.md
+	@echo "This utility encapsulates commands for configuring a VPN as the default route" | tee -a README.md
 	@echo "on straightforward client applications, or forwarding to another connection on" | tee -a README.md
 	@echo "a server." | tee -a README.md
 	@echo "" | tee -a README.md
