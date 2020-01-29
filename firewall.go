@@ -1,37 +1,29 @@
-package firewall
+package main
 
 import (
-	"fmt"
+	"flag"
 	"log"
-	"runtime"
-	"github.com/jackpal/gateway"
-    "github.com/eyedeekay/canal/etc"
+
+	"github.com/eyedeekay/canal/etc"
 )
 
-func Setup(user, iface string, exempt bool, vface string) error {
-	if iface == "" {
-		var err error
-		iface, err = fwscript.DefaultIface()
-		if err != nil {
-			return err
+var (
+	tunnelname = flag.String("tun", "tun0", "Name of the tunnel to auto-configure")
+	gateway    = flag.String("gate", fwscript.DefaultGate(), "Gateway to forward traffic to")
+	server     = flag.Bool("server", false, "Configure a server (default false)")
+)
+
+func main() {
+	flag.Parse()
+	if *server {
+		if err := fwscript.ServerSetup(*tunnelname, *gateway); err != nil {
+			log.Fatal(err)
 		}
+		log.Println("VPN Server Setup")
+	} else {
+		if err := fwscript.Setup(*tunnelname); err != nil {
+			log.Fatal(err)
+		}
+		log.Println("VPN Client Setup")
 	}
-	log.Println("firewall:", "Setting up firewall")
-	gate, err := gateway.DiscoverGateway()
-	if err != nil {
-		return err
-	}
-	addr, err := fwscript.IfIP(iface)
-	if err != nil {
-		return err
-	}
-	log.Println("firewall:", iface, gate.String(), addr.String())
-	switch os := runtime.GOOS; os {
-	case "darwin":
-	case "linux":
-	case "windows":
-	default:
-		return fmt.Errorf("Error setting up VPN interface to be default gateway")
-	}
-	return nil
 }

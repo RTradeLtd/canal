@@ -89,6 +89,11 @@ func Command(command string, args ...string) (string, error) {
 	return string(output), nil
 }
 
+func DefaultGate() string {
+	gate, _ := gateway.DiscoverGateway()
+	return gate.String()
+}
+
 func DefaultIface() (string, error) {
 	gate, err := gateway.DiscoverGateway()
 	ifaces, err := net.Interfaces()

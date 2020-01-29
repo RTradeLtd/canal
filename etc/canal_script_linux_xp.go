@@ -2,6 +2,8 @@ package fwscript
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os/exec"
 	"strconv"
 )
 
@@ -85,7 +87,7 @@ func testRunIPTables(net int, rules []string) (string, error) {
 	strout := ""
 	for _, rule := range rules {
 		strout += "ip" + nv + "tables " + rule
-		fmt.Printf("%s %v\n", "ip"+nv+"tables", rule)
+		fmt.Printf("%s %v\n", "ip"+nv+"tables ", rule)
 	}
 	return strout, nil
 }
@@ -167,4 +169,20 @@ func LinuxSetupVPNExceptPort(tunnel, ipaddr, port string) (string, error) {
 
 func LinuxSetupVPNDNS(tunnel, ipaddr string) (string, error) {
 	return LinuxSetupVPNExceptPort(tunnel, ipaddr, "53")
+}
+
+func LinuxServerSetup(iface, gface string) error {
+	if err := ioutil.WriteFile("/proc/sys/net/ipv4/ip_forward", []byte("1"), 0644); err != nil {
+
+	}
+	if err := exec.Command("iptables", "-t", "nat", "-A", "POSTROUTING", "-o", gface, "-j", "MASQUERADE").Run(); err != nil {
+		return err
+	}
+	if err := exec.Command("iptables", "-A", "FORWARD", "-i", iface, "-o", gface, "-j", "ACCEPT").Run(); err != nil {
+		return err
+	}
+	if err := exec.Command("iptables", "-A", "FORWARD", "-i", gface, "-o", iface, "-m", "state", "--state", "RELATED,ESTABLISHED", "-j", "ACCEPT").Run(); err != nil {
+		return err
+	}
+	return nil
 }
